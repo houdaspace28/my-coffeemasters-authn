@@ -28,8 +28,42 @@ app.use(express.urlencoded({
   extended: true
 }));
 
-// ADD HERE THE REST OF THE ENDPOINTS
+function findUser(email){
+  const results = db.data.users.filter(user => user.email === email);
+  if(results.length === 0) return undefined;
+  return results[0];
+}
 
+app.post('/auth/login', (req, res) => {
+    const user = findUser(req.body.email);
+    if(!user){
+      res.send({ok: false, message: "Credentials wrong"});
+    }else{
+      if(bcrypt.compareSync(req.body.password, user.password))
+        res.send({ok:true,name:user.name,email:user.email});
+    }
+})
+
+
+// ADD HERE THE REST OF THE ENDPOINTS
+app.post('/auth/register',(req,res)=>{
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+    const user = {
+      name: req.bpdy.name,
+      email: req.bpdy.email,
+      password: hashedPassword
+    }
+    const foundUser = findUser(user.email);
+    if(foundUser){
+      res.send({ok: false, message: "User already exists"});
+    }
+    else{
+      db.data.users.push(user);
+      db.write()
+      res.send({ok:true})
+    }
+});
 
 
 app.get("*", (req, res) => {
