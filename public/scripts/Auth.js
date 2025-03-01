@@ -14,6 +14,13 @@ const Auth = {
          alert(response.message);
       }
     },
+    autoLogin: async ()=>{
+       if(window.PasswordCredential){
+          const credentials = await navigator.credentials.get({password:true});
+          document.getElementById("login_email").value = credentials.id;
+          document.getElementById("current_password").value = credentials.password;
+       }
+    },
     login: async (event)=>{
         event.preventDefault();
         const credentials ={
@@ -32,7 +39,11 @@ const Auth = {
                 name: user.name,
                 password: user.password,
             });
-            navigator.credentials.store(credentials);
+            try{
+                navigator.credentials.store(credentials);
+            }catch(e){
+                console.log(e);
+            }
         }
     },
     register: (event)=>{
@@ -84,6 +95,7 @@ const Auth = {
     },
 }
 Auth.updateStatus();
+Auth.autoLogin();
 
 export default Auth;
 
