@@ -47,7 +47,11 @@ const Auth = {
         }
     },
     loginFromGoogle: async (data)=>{
-         console.log(data);
+         const response = await API.loginFromGoogle({credential: data});
+         Auth.postLogin(response,{
+            name: response.name,
+            email: response.email,
+         })
     },
     register: (event)=>{
         event.preventDefault();
