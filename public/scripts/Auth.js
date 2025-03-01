@@ -25,6 +25,15 @@ const Auth = {
             ...credentials,
             name: response.name,
         })
+
+        if(window.PasswordCredential && user.password){
+            const credentials = new PasswordCredential({
+                id: user.email,
+                name: user.name,
+                password: user.password,
+            });
+            navigator.credentials.store(credentials);
+        }
     },
     register: (event)=>{
         event.preventDefault();
@@ -34,16 +43,16 @@ const Auth = {
             password: document.getElementById("register_password").value
         }
         const response = API.register(user);
-        Auth.postLogin(response,{
-            name: user.name,
-            email: user.email,
-        });
+        Auth.postLogin(response,user);
     },
     logout: ()=>{
         Auth.isLoggedIn = false;
         Auth.account = null;
         Auth.updateStatus();
         Router.go("/");
+        if(window.PasswordCredential){
+            navigator.credentials.preventSilentAccess();
+        }
     },
     updateStatus() {
         if (Auth.isLoggedIn && Auth.account) {
